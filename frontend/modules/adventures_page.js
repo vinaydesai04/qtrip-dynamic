@@ -5,6 +5,15 @@ import config from "../conf/index.js";
 function getCityFromURL(search) {
   // TODO: MODULE_ADVENTURES
   // 1. Extract the city id from the URL's Query Param and return it
+   // 1. Create URLSearchParams object from the query string
+   const params = new URLSearchParams(search);
+
+   // 2. Get the value of "city" from the params
+   const city = params.get("city");
+   
+ 
+   // 3. Return that value
+   return city;
 
 }
 
@@ -12,20 +21,94 @@ function getCityFromURL(search) {
 async function fetchAdventures(city) {
   // TODO: MODULE_ADVENTURES
   // 1. Fetch adventures using the Backend API and return the data
+  try {
+    const res = await fetch(
+      `${config.backendEndpoint}/adventures?city=${city}`
+    );
+
+    // Parse and return JSON
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("Error in fetchAdventures:", err);
+    // On any error, return null (this is what tests expect)
+    return null;
+  }
 
 }
 
 //Implementation of DOM manipulation to add adventures for the given city from list of adventures
 function addAdventureToDOM(adventures) {
-  // TODO: MODULE_ADVENTURES
-  // 1. Populate the Adventure Cards and insert those details into the DOM
+  // Get the parent container
+  const container = document.getElementById("data");
 
+  // Clear existing cards (if any)
+  container.textContent = "";
+
+  // Loop through each adventure and create a card
+  adventures.forEach((adventure) => {
+    // Outer column div
+    const colDiv = document.createElement("div");
+    colDiv.className = "col-6 col-lg-3 mb-4";
+
+    // Clickable link wrapping the card
+    const link = document.createElement("a");
+    link.href = `detail/?adventure=${adventure.id}`;
+    link.id = adventure.id;
+    link.className = "activity-card";
+
+    // Category banner
+    const categoryBanner = document.createElement("div");
+    categoryBanner.className = "category-banner";
+    categoryBanner.textContent = adventure.category;
+
+    // Image
+    const img = document.createElement("img");
+    img.src = adventure.image;
+    img.alt = adventure.name;
+    img.className = "activity-card img";
+
+    // Card body
+    const cardBody = document.createElement("div");
+    cardBody.className = "d-flex flex-column p-2 w-100";
+
+    // Name and cost row
+    const nameCostDiv = document.createElement("div");
+    nameCostDiv.className = "d-flex justify-content-between w-100";
+    nameCostDiv.innerHTML = `
+      <h5 class="mb-1">${adventure.name}</h5>
+      <p class="mb-1">₹${adventure.costPerHead}</p>
+    `;
+
+    // Duration row
+    const durationDiv = document.createElement("div");
+    durationDiv.className = "d-flex justify-content-between w-100";
+    durationDiv.innerHTML = `
+      <p class="mb-1">Duration</p>
+      <p class="mb-1">${adventure.duration} Hours</p>
+    `;
+
+    // Assemble card body
+    cardBody.appendChild(nameCostDiv);
+    cardBody.appendChild(durationDiv);
+
+    // Assemble link
+    link.appendChild(categoryBanner);
+    link.appendChild(img);
+    link.appendChild(cardBody);
+
+    // Add to column, then to container
+    colDiv.appendChild(link);
+    container.appendChild(colDiv);
+  });
 }
+
 
 //Implementation of filtering by duration which takes in a list of adventures, the lower bound and upper bound of duration and returns a filtered list of adventures.
 function filterByDuration(list, low, high) {
   // TODO: MODULE_FILTERS
   // 1. Filter adventures based on Duration and return filtered list
+  
 
 }
 
