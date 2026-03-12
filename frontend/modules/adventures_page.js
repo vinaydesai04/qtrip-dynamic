@@ -108,7 +108,10 @@ function addAdventureToDOM(adventures) {
 function filterByDuration(list, low, high) {
   // TODO: MODULE_FILTERS
   // 1. Filter adventures based on Duration and return filtered list
-  
+  const l = Number(low);
+  const h = Number(high);
+
+  return list.filter((adv) => adv.duration >= l && adv.duration <= h);
 
 }
 
@@ -116,7 +119,9 @@ function filterByDuration(list, low, high) {
 function filterByCategory(list, categoryList) {
   // TODO: MODULE_FILTERS
   // 1. Filter adventures based on their Category and return filtered list
+  if (!categoryList || categoryList.length === 0) return list;
 
+  return list.filter((adv) => categoryList.includes(adv.category));
 }
 
 // filters object looks like this filters = { duration: "", category: [] };
@@ -130,17 +135,28 @@ function filterFunction(list, filters) {
   // TODO: MODULE_FILTERS
   // 1. Handle the 3 cases detailed in the comments above and return the filtered list of adventures
   // 2. Depending on which filters are needed, invoke the filterByDuration() and/or filterByCategory() methods
+  let filteredList = list;
 
+  // Category filter
+  if (filters.category && filters.category.length > 0) {
+    filteredList = filterByCategory(filteredList, filters.category);
+  }
+
+  // Duration filter (will be used from Milestone 2, but safe to keep now)
+  if (filters.duration && filters.duration.length > 0) {
+    const [low, high] = filters.duration.split("-").map(Number);
+    filteredList = filterByDuration(filteredList, low, high);
+  }
 
   // Place holder for functionality to work in the Stubs
-  return list;
+  return filteredList;
 }
 
 //Implementation of localStorage API to save filters to local storage. This should get called everytime an onChange() happens in either of filter dropdowns
 function saveFiltersToLocalStorage(filters) {
   // TODO: MODULE_FILTERS
   // 1. Store the filters as a String to localStorage
-
+  localStorage.setItem("filters", JSON.stringify(filters));
   return true;
 }
 
@@ -148,10 +164,10 @@ function saveFiltersToLocalStorage(filters) {
 function getFiltersFromLocalStorage() {
   // TODO: MODULE_FILTERS
   // 1. Get the filters from localStorage and return String read as an object
-
+  const data = localStorage.getItem("filters");
 
   // Place holder for functionality to work in the Stubs
-  return null;
+  return data ? JSON.parse(data) : null;
 }
 
 //Implementation of DOM manipulation to add the following filters to DOM :
@@ -161,6 +177,25 @@ function getFiltersFromLocalStorage() {
 function generateFilterPillsAndUpdateDOM(filters) {
   // TODO: MODULE_FILTERS
   // 1. Use the filters given as input, update the Duration Filter value and Generate Category Pills
+  const durationSelect = document.getElementById("duration-select");
+  if (durationSelect) {
+    durationSelect.value = filters.duration || "";
+  }
+
+  // Category pills
+  const categoryListEl = document.getElementById("category-list");
+  if (!categoryListEl) return;
+
+  categoryListEl.textContent = "";
+
+  if (filters.category && filters.category.length > 0) {
+    filters.category.forEach((cat) => {
+      const pill = document.createElement("div");
+      pill.className = "category-filter";
+      pill.textContent = cat;
+      categoryListEl.appendChild(pill);
+    });
+  }
 
 }
 export {
