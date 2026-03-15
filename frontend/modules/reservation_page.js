@@ -4,28 +4,74 @@ import config from "../conf/index.js";
 async function fetchReservations() {
   // TODO: MODULE_RESERVATIONS
   // 1. Fetch Reservations by invoking the REST API and return them
-
-
-  // Place holder for functionality to work in the Stubs
-  return null;
+  try {
+    const res = await fetch(`${config.backendEndpoint}/reservations/`);
+    const data = await res.json();
+    return data;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }
 
 //Function to add reservations to the table. Also; in case of no reservations, display the no-reservation-banner, else hide it.
 function addReservationToTable(reservations) {
-  // TODO: MODULE_RESERVATIONS
-  // 1. Add the Reservations to the HTML DOM so that they show up in the table
+  const noBanner = document.getElementById("no-reservation-banner");
+  const tableParent = document.getElementById("reservation-table-parent");
+  const tableBody = document.getElementById("reservation-table");
 
-  //Conditionally render the no-reservation-banner and reservation-table-parent
+  if (!reservations || reservations.length === 0) {
+    noBanner.style.display = "block";
+    tableParent.style.display = "none";
+    return;
+  }
 
-  /*
-    Iterating over reservations, adding it to table (into div with class "reservation-table") and link it correctly to respective adventure
-    The last column of the table should have a "Visit Adventure" button with id=<reservation-id>, class=reservation-visit-button and should link to respective adventure page
+  noBanner.style.display = "none";
+  tableParent.style.display = "block";
+  tableBody.innerHTML = "";
 
-    Note:
-    1. The date of adventure booking should appear in the format D/MM/YYYY (en-IN format) Example:  4/11/2020 denotes 4th November, 2020
-    2. The booking time should appear in a format like 4 November 2020, 9:32:31 pm
-  */
+  reservations.forEach((resv) => {
+    const tr = document.createElement("tr");
 
+    const reservationDate = new Date(resv.date);
+    const bookingTime = new Date(resv.time);
+
+    // Date: en-IN
+    const dateStr = reservationDate.toLocaleDateString("en-IN");
+
+    // Booking Time: EXACT format "4 November 2020, 9:32:31 pm"
+    const day = bookingTime.getDate();
+    const month = bookingTime.toLocaleString("en-IN", { month: "long" });
+    const year = bookingTime.getFullYear();
+
+    let hours = bookingTime.getHours();
+    const minutes = bookingTime.getMinutes().toString().padStart(2, "0");
+    const seconds = bookingTime.getSeconds().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12;
+    if (hours === 0) hours = 12;
+
+    const bookingTimeStr = `${day} ${month} ${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+
+    tr.innerHTML = `
+      <td>${resv.id}</td>
+      <td>${resv.name}</td>
+      <td>${resv.adventureName}</td>
+      <td>${resv.person}</td>
+      <td>${dateStr}</td>
+      <td>${resv.price}</td>
+      <td>${bookingTimeStr}</td>
+      <td id="${resv.id}">
+        <a class="reservation-visit-button" href="../detail/?adventure=${resv.adventure}">
+          Visit Adventure
+        </a>
+      </td>
+    `;
+
+    tableBody.appendChild(tr);
+  });
 }
+
+
 
 export { fetchReservations, addReservationToTable };
