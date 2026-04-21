@@ -1,0 +1,1 @@
+QTrip Dynamic is a dynamic travel booking web application developed as part of the Crio.Do Full Stack Development program. The application enables users to browse destinations, view detailed information, and make reservations. It integrates REST APIs for dynamic data rendering and provides a responsive and interactive user experience.
